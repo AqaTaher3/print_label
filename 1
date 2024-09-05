@@ -1,0 +1,75 @@
+procedure Memo1OnBeforePrint(Sender: TfrxComponent);
+var
+  GoodsComment: string;
+  FormattedComment: string;
+  Temp: string;
+  PosPlus: Integer;
+  Count: Integer;
+begin
+  GoodsComment := <frxDBDatasetFactor."GoodsComment">;
+  FormattedComment := '';
+  Count := 0;
+
+  // ÈÑÑÓí Çíä˜å GoodsComment ÎÇáí äÈÇÔÏ
+  if GoodsComment <> '' then
+  begin
+    // ÑÏÇÒÔ ãÞÇÏíÑ ÇÒ ÓãÊ  Èå ÑÇÓÊ
+    while Length(GoodsComment) > 0 do
+    begin
+      // íÏÇ ˜ÑÏä ãæÞÚíÊ "+" ÇÒ ÓãÊ 
+      PosPlus := Pos('+', GoodsComment);
+
+      if PosPlus = 0 then
+      begin
+        // ÇÑ "+" íÏÇ äÔæÏ¡ ãÞÏÇÑ ÈÇÞíãÇäÏå ÑÇ ˜í ãí˜äíã
+        Temp := GoodsComment;
+        GoodsComment := '';
+      end
+      else
+      begin
+        // ÌÏÇ ˜ÑÏä ãÞÏÇÑ ÈÇ ÊæÌå Èå ãæÞÚíÊ "+"
+        Temp := Copy(GoodsComment, 1, PosPlus - 1);
+        GoodsComment := Copy(GoodsComment, PosPlus + 1, Length(GoodsComment) - PosPlus);
+      end;
+
+      // ÇÖÇÝå ˜ÑÏä ãÞÏÇÑ Èå ãÊä ÞÇáÈÈäÏí ÔÏå
+      FormattedComment := FormattedComment + Temp;
+      Inc(Count);
+
+      // ÇÝÒæÏä "+" Èå ÇäÊåÇí åÑ ãÞÏÇÑ Èå ÌÒ ÂÎÑíä ãÞÏÇÑ ÏÑ ÎØ
+      if Length(GoodsComment) > 0 then
+        FormattedComment := FormattedComment + '+';
+
+      // ÑÝÊä Èå ÎØ ÌÏíÏ ÈÚÏ ÇÒ åÑ äÌ ãÞÏÇÑ
+      if (Count mod 5 = 0) then
+      begin
+        // ÍÐÝ "+" ÇÖÇÝí ÏÑ ÇäÊåÇí ÎØ
+        if (Length(FormattedComment) > 0) and (FormattedComment[Length(FormattedComment)] = '+') then
+          Delete(FormattedComment, Length(FormattedComment), 1);
+
+        FormattedComment := FormattedComment + #13#10;
+      end;
+    end;
+
+    // ÍÐÝ "+" ÇÖÇÝí ÏÑ ÇäÊåÇí ãÊä
+    if (Length(FormattedComment) > 0) and (FormattedComment[Length(FormattedComment)] = '+') then
+      Delete(FormattedComment, Length(FormattedComment), 1);
+
+    // ÍÐÝ ÎØ ÎÇáí ÇÖÇÝí ÏÑ ÇäÊåÇí ãÊä ÇÑ ãæÌæÏ ÈÇÔÏ
+    if (Length(FormattedComment) >= 2) and (FormattedComment[Length(FormattedComment)] = #10) and
+       (FormattedComment[Length(FormattedComment) - 1] = #13) then
+      Delete(FormattedComment, Length(FormattedComment) - 1, 2);
+
+    // äãÇíÔ äÊíÌå ÏÑ Memo1 æ Memo5
+    Memo1.Text := <frxDBDatasetFactor."CName"> + #13#10 + FormattedComment;
+    Memo5.Text := IntToStr(<frxDBDatasetFactor."Tedad">) + #13#10 + <frxDBDatasetFactor."UnitName_1">;
+
+  end
+  else
+  begin
+    // ÇÑ GoodsComment ÎÇáí ÈÇÔÏ
+    Memo1.Text := <frxDBDatasetFactor."CName">;
+    Memo5.Text := IntToStr(<frxDBDatasetFactor."Tedad">) + #13#10 + <frxDBDatasetFactor."UnitName_1">;
+
+  end;
+end;

@@ -1,0 +1,68 @@
+procedure Memo1OnBeforePrint(Sender: TfrxComponent);
+var
+  GoodsComment: string;
+  FormattedComment: string;
+  Temp: string;
+  PosPlus: Integer;
+  Count: Integer;
+begin
+  GoodsComment := <frxDBDatasetFactor."GoodsComment">;
+  FormattedComment := '';
+  Count := 0;
+
+  // بررس? ا?نکه GoodsComment خال? نباشد
+  if GoodsComment <> '' then
+  begin
+    // پردازش مقاد?ر از سمت چپ به راست
+    while Length(GoodsComment) > 0 do
+    begin
+      // پ?دا کردن موقع?ت "+" از سمت چپ
+      PosPlus := Pos('+', GoodsComment);
+
+      if PosPlus = 0 then
+      begin
+        // اگر "+" پ?دا نشود، مقدار باق?‌مانده را کپ? م?‌کن?م
+        Temp := GoodsComment;
+        GoodsComment := '';
+      end
+      else
+      begin
+        // جدا کردن مقدار با توجه به موقع?ت "+"
+        Temp := Copy(GoodsComment, 1, PosPlus - 1);
+        GoodsComment := Copy(GoodsComment, PosPlus + 1, Length(GoodsComment) - PosPlus);
+      end;
+
+      // اضافه کردن مقدار به متن قالب‌بند? شده
+      FormattedComment := FormattedComment + Temp;
+      Inc(Count);
+
+      // افزودن "+" به انتها? هر مقدار به جز آخر?ن مقدار در خط
+      if Length(GoodsComment) > 0 then
+        FormattedComment := FormattedComment + '+';
+
+      // رفتن به خط جد?د بعد از هر پنج مقدار
+      if (Count mod 5 = 0) then
+      begin
+        // حذف "+" اضاف? در انتها? خط
+        if (Length(FormattedComment) > 0) and (FormattedComment[Length(FormattedComment)] = '+') then
+          Delete(FormattedComment, Length(FormattedComment), 1);
+
+        FormattedComment := FormattedComment + #13#10;
+      end;
+    end;
+
+    // حذف "+" اضاف? در انتها? متن
+    if (Length(FormattedComment) > 0) and (FormattedComment[Length(FormattedComment)] = '+') then
+      Delete(FormattedComment, Length(FormattedComment), 1);
+
+    Memo1.Text := <frxDBDatasetFactor."CName"> + #13#10 + FormattedComment;
+    Memo5.Text := IntToStr(<frxDBDatasetFactor."Tedad">) + #13#10 + <frxDBDatasetFactor."UnitName_1">;
+
+  end
+  else
+  begin
+    Memo1.Text := <frxDBDatasetFactor."CName"> + #13#10 + <frxDBDatasetFactor."CName">;
+    Memo5.Text := IntToStr(<frxDBDatasetFactor."Tedad">) + #13#10 + <frxDBDatasetFactor."UnitName_1">;
+
+  end;
+end;
